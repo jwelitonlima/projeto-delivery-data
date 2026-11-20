@@ -5,6 +5,7 @@ import requests
 from dotenv import load_dotenv
 import os
 import urllib3
+from pathlib import Path  # <-- ADICIONADO AQUI
 
 # Desabilita aviso de SSL
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -45,10 +46,17 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 3. PIPELINE DE DADOS (Tradução Profunda e Contexto Brasil)
+# 3. PIPELINE DE DADOS (Tradução Profunda e Contexto Brasil) - CORRIGIDO
 @st.cache_data
 def carregar_dados():
-    df = pd.read_csv("data/food_delivery_time_prediction.csv")
+    # Encontra o caminho absoluto da pasta onde o app.py está
+    caminho_script = Path(__file__).parent.resolve()
+    
+    # Monta o caminho para o arquivo CSV
+    # ATENÇÃO: O nome do arquivo deve ser EXATAMENTE igual ao que está no GitHub
+    caminho_csv = caminho_script / "data" / "Food_Delivery_Time_Prediction.csv"
+    
+    df = pd.read_csv(caminho_csv)
     df.columns = df.columns.str.strip().str.lower()
     
     # 1. Renomeando Colunas
@@ -101,7 +109,6 @@ grid_color = 'rgba(255, 255, 255, 0.05)'
 bg_color = 'rgba(0,0,0,0)'
 
 st.subheader("1. Análise Exploratória")
-# ... (Os gráficos 1, 2 e 3 continuam iguais, só garanta que o código anterior foi mantido) ...
 fig1 = px.scatter(df, x="Distancia_KM", y="Tempo_Minutos", color="Clima", title="Hipótese 1: O clima e a distância impactam o tempo de entrega?", color_discrete_sequence=px.colors.qualitative.Pastel)
 fig1.update_layout(plot_bgcolor=bg_color, paper_bgcolor=bg_color, font=dict(color=dark_color, family="Inter"), title_font=dict(size=14, color="#ffffff"), xaxis=dict(title="Distância (km)", showgrid=False), yaxis=dict(title="Tempo (min)", showgrid=True, gridcolor=grid_color))
 st.plotly_chart(fig1, use_container_width=True)
